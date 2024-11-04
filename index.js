@@ -9,14 +9,14 @@ app.use(cors())
 app.use(express.json());
 
 const db = mysql.createPool({
-    host:'localhost',
+    host: 'localhost',
     user: 'root',
     password: '',
-    database: 'mobilephones' 
+    database: 'mobilephones'
 }).promise();
 
 app.get('/phones', async (req, res) => {
-    
+
     try {
         const temp = await db.query('SELECT * FROM phones');
         const rows = temp[0];
@@ -43,7 +43,7 @@ app.post('/phones', async (req, res) => {
         }
 
         const [rows, fields] = await db.query('INSERT INTO phones (brand, model, price) VALUES (?,?,?)', phoneData);
-        res.status(200).json({ message: 'Phone successfully added!'});
+        res.status(200).json({ message: 'Phone successfully added!' });
 
 
     } catch (error) {
@@ -60,11 +60,24 @@ app.delete('/phones/:phoneId', async (req, res) => {
         } else {
             res.status(200).json({ message: "Phone successfully removed" });
         }
- 
+
     } catch (error) {
         console.error(`Error retrieving phones ${error}`);
         res.status(500).json({ error: "Internal Server Error" });
     }
 })
-
+app.get('/phones/:phoneId', async (req, res) => {
+    try {
+        let phoneId = parseInt(req.params.phoneId);
+        const [rows, fields] = await db.query('SELECT id, brand, model, price FROM phones WHERE id =?', [phoneId]);
+        if (rows.length == 1) {
+            res.status(200).json(rows[0]);
+        } else {
+            res.status(404).json({ error: 'There is no phone with this id.' });
+        }
+    } catch (error) {
+        console.error(`Error retrieving phones ${error}`);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+})
 app.listen(3000);
