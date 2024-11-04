@@ -51,5 +51,20 @@ app.post('/phones', async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 })
+app.delete('/phones/:phoneId', async (req, res) => {
+    try {
+        let phoneId = parseInt(req.params.phoneId);
+        const [rows, fields] = await db.query('DELETE FROM phones WHERE id =?', [phoneId]);
+        if (rows.length === 0) {
+            res.status(404).json({ error: "Phone not found" });
+        } else {
+            res.status(200).json({ message: "Phone successfully removed" });
+        }
+ 
+    } catch (error) {
+        console.error(`Error retrieving phones ${error}`);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+})
 
 app.listen(3000);
